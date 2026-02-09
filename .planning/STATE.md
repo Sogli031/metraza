@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 ## Current Position
 
 Phase: 5 of 5 (Test Coverage)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-09 — Plan 05-01 completed
+Plan: 2 of 2 in current phase
+Status: Complete
+Last activity: 2026-02-09 — Plan 05-02 completed
 
-Progress: [███████░░░] 70%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: ~2.9 minuta
-- Total execution time: 0.36 hours
+- Total plans completed: 8
+- Average duration: ~2.6 minuta
+- Total execution time: 0.38 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [███████░░░] 70%
 | 02-critical-calculation-fixes | 1 | ~3 min | ~3 min |
 | 03-architecture-validation | 2 | ~6 min | ~3 min |
 | 04-performance-features | 2 | ~6 min | ~3 min |
-| 05-test-coverage | 1 | ~3 min | ~3 min |
+| 05-test-coverage | 2 | ~4 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (~4 min), 04-01 (~3 min), 04-02 (~3 min), 05-01 (~3 min)
-- Trend: Consistent velocity
+- Last 5 plans: 04-01 (~3 min), 04-02 (~3 min), 05-01 (~3 min), 05-02 (~1 min)
+- Trend: Accelerating velocity
 
 *Updated after each plan completion*
 
@@ -74,6 +74,9 @@ Recent decisions affecting current work:
 - [Phase 05-test-coverage]: JUnit 4 i Truth library za unit testing - Android standard, fluent assertions, brži JVM execution
 - [Phase 05-test-coverage]: Local unit tests (src/test/) umesto instrumented - business logic je pure functions, ne zahteva Android device
 - [Phase 05-test-coverage]: 84 unit testa pokrivaju Calculator, Validation, Models - edge cases, boundary values, manual calculation verification
+- [Phase 05-test-coverage]: Compose UI test preko placeholder tekstova - LabeledTextField ima label iznad polja, placeholder text je jedinstven i pouzdan način da se nadje odgovarajuće text field
+- [Phase 05-test-coverage]: 11 integration testova za CalculatorScreen - initial state, calculation flow, reset, validation, material selection
+- [Phase 05-test-coverage]: waitForIdle() umesto Thread.sleep() - ComposeTestRule automatski synchronizuje, waitForIdle() eksplicitno čeka završetak recomposition
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09T13:12:07Z
-Stopped at: Completed 05-01-PLAN.md (Test Infrastructure i Data Layer Unit Tests - JUnit 4, Truth, 84 unit tests)
+Last session: 2026-02-09T13:23:18Z
+Stopped at: Completed 05-02-PLAN.md (Compose UI Integration Tests - 11 testova za CalculatorScreen UI flow)
 Resume file: None
