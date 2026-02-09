@@ -50,3 +50,14 @@
 
 # Validation pure funkcije - pozivaju se iz Compose derivedStateOf
 -keep class com.metraza.data.ValidationKt { *; }
+
+# =============================
+# Phase 4: Performance & Features
+# =============================
+# formatResultsForShare - poziva se iz Compose lambda u CalculatorScreen
+# CalculatorKt keep rule već pokriva sve public funkcije u Calculator.kt,
+# što uključuje i formatResultsForShare. Dokumentovano ovde za jasnoću.
+
+# SecondaryButton - disabled state colors, enabled parametar
+# Koristi se kao Composable iz UI, ali eksplicitno čuvamo za safety.
+-keep class com.metraza.ui.components.ButtonsKt { public *; }
