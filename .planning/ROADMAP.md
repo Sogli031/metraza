@@ -92,10 +92,11 @@ Plans:
   3. Material density tests verifikuju svih 6 materijala sa ispravnim gustinama
   4. Layout responsive tests pokrivaju compact vs regular screen i keyboard visibility
   5. Test suite se može pokrenuti i svi testovi prolaze
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md -- Test dependencies (JUnit 4, Truth) + unit testovi za Calculator, Validation, Models (local JVM tests)
+- [ ] 05-02-PLAN.md -- Compose test dependencies + integration testovi za CalculatorScreen UI flow (androidTest)
 
 ## Progress
 
