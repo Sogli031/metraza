@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Critical Calculation Fixes** - Ispravke gustina, preciznosti, Material enum (2026-02-09)
 - [x] **Phase 3: Architecture & Validation** - State refaktoring i input validacija (2026-02-09)
 - [x] **Phase 4: Performance & Features** - Optimizacije i nove funkcije (Reset/Share) (2026-02-09)
-- [ ] **Phase 5: Test Coverage** - Kompletna test pokrivenost (unit + integration)
+- [x] **Phase 5: Test Coverage** - Kompletna test pokrivenost (unit + integration) (2026-02-09)
 
 ## Phase Details
 
@@ -95,8 +95,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md -- Test dependencies (JUnit 4, Truth) + unit testovi za Calculator, Validation, Models (local JVM tests)
-- [ ] 05-02-PLAN.md -- Compose test dependencies + integration testovi za CalculatorScreen UI flow (androidTest)
+- [x] 05-01-PLAN.md -- Test dependencies (JUnit 4, Truth) + unit testovi za Calculator, Validation, Models (local JVM tests)
+- [x] 05-02-PLAN.md -- Compose test dependencies + integration testovi za CalculatorScreen UI flow (androidTest)
 
 ## Progress
 
@@ -109,4 +109,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Critical Calculation Fixes | 1/1 | Complete | 2026-02-09 |
 | 3. Architecture & Validation | 2/2 | Complete | 2026-02-09 |
 | 4. Performance & Features | 2/2 | Complete | 2026-02-09 |
-| 5. Test Coverage | 0/1 | Not started | - |
+| 5. Test Coverage | 2/2 | Complete | 2026-02-09 |
