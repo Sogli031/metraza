@@ -56,7 +56,16 @@ data class LayoutTokens(
     val itemPaddingVertical: Dp,
     val buttonMinHeight: Dp,
     val buttonContentPadding: PaddingValues,
-    val buttonSpacing: Dp
+    val buttonSpacing: Dp,
+    val keyboardSpacing: Dp,
+    val keyboardScreenPaddingVertical: Dp,
+    val keyboardCardPaddingVertical: Dp,
+    val keyboardFieldSpacing: Dp,
+    val resultCardCornerRadius: Dp,
+    val resultCardElevation: Dp,
+    val resultCardPaddingHorizontal: Dp,
+    val resultCardPaddingVertical: Dp,
+    val resultRowSpacing: Dp
 )
 
 @Composable
@@ -80,6 +89,15 @@ fun layoutTokens(): LayoutTokens {
         } else {
             PaddingValues(horizontal = 18.dp, vertical = 10.dp)
         },
-        buttonSpacing = if (isCompact) 8.dp else 10.dp
+        buttonSpacing = if (isCompact) 8.dp else 10.dp,
+        keyboardSpacing = 8.dp,
+        keyboardScreenPaddingVertical = 8.dp,
+        keyboardCardPaddingVertical = 12.dp,
+        keyboardFieldSpacing = 10.dp,
+        resultCardCornerRadius = 12.dp,
+        resultCardElevation = 4.dp,
+        resultCardPaddingHorizontal = if (isCompact) 12.dp else 14.dp,
+        resultCardPaddingVertical = if (isCompact) 10.dp else 12.dp,
+        resultRowSpacing = 8.dp
     )
 }
