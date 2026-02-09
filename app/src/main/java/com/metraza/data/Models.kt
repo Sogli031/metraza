@@ -1,5 +1,7 @@
 package com.metraza.data
 
+import androidx.compose.runtime.Immutable
+
 enum class Material(val density: Int) {
     Cu(8960),
     CuZn10(8800),
@@ -18,12 +20,14 @@ enum class Material(val density: Int) {
     }
 }
 
+@Immutable
 data class RollResult(
     val lengthM: Double,
     val weightKg: Double,
     val outerDiameterMm: Double? = null
 )
 
+@Immutable
 data class CalculationResult(
     val rolls: Int,
     val base: RollResult,

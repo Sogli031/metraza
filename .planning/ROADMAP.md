@@ -76,10 +76,11 @@ Plans:
   4. Scroll-to-results koristi LaunchedEffect bez hard-coded delay-a
   5. Korisnik može da klikne Reset dugme i clear-uje sva polja jednim klikom
   6. Korisnik može da share-uje rezultate preko email/messaging Intent-a
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md -- Performance optimizacije: binary search font sizing, LazyColumn rezultati, @Immutable annotations, scroll timing fix
+- [ ] 04-02-PLAN.md -- Nove funkcije: Reset button, Share/Podeli rezultate via Intent
 
 ### Phase 5: Test Coverage
 **Goal**: Potpuna test pokrivenost Calculator logike i UI flow-a
@@ -106,5 +107,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation & Security | 1/1 | Complete | 2026-02-09 |
 | 2. Critical Calculation Fixes | 1/1 | Complete | 2026-02-09 |
 | 3. Architecture & Validation | 2/2 | Complete | 2026-02-09 |
-| 4. Performance & Features | 0/1 | Not started | - |
+| 4. Performance & Features | 0/2 | Not started | - |
 | 5. Test Coverage | 0/1 | Not started | - |

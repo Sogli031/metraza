@@ -27,11 +27,14 @@ import com.metraza.R
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -58,6 +61,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.animation.shrinkVertically
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.runtime.mutableIntStateOf
@@ -152,6 +157,7 @@ fun CalculatorScreen() {
     val coroutineScope = rememberCoroutineScope()
     val isKeyboardVisible = WindowInsets.isImeVisible
     var resultsPosition by remember { mutableIntStateOf(0) }
+    var shouldScrollToResults by remember { mutableStateOf(false) }
 
     // Funkcija za izračunavanje
     val handleCalculate: () -> Unit = {
@@ -175,10 +181,7 @@ fun CalculatorScreen() {
                     MessageType.SUCCESS
                 )
                 // Skroluj do rezultata
-                coroutineScope.launch {
-                    delay(150) // Sačekaj da se UI ažurira
-                    scrollState.animateScrollTo(resultsPosition)
-                }
+                shouldScrollToResults = true
             } else {
                 messageState = MessageState(
                     "✗ Proverite ulazne parametre.",
@@ -394,6 +397,19 @@ fun CalculatorScreen() {
                     ResultsSection(results = results, layout = layout)
                 }
             }
+
+            // Scroll to results sa snapshotFlow
+            LaunchedEffect(shouldScrollToResults) {
+                if (shouldScrollToResults) {
+                    snapshotFlow { resultsPosition }
+                        .filter { it > 0 }
+                        .take(1)
+                        .collect { position ->
+                            scrollState.animateScrollTo(position)
+                            shouldScrollToResults = false
+                        }
+                }
+            }
         }
     }
 }
@@ -463,6 +479,7 @@ private fun ResultCard(result: CalculationResult, layout: com.metraza.ui.theme.L
     }
 }
 
+@Immutable
 private data class RowData(
     val label: String,
     val variant: com.metraza.data.RollResult,
@@ -487,24 +504,30 @@ private fun ResultRowsGroup(rows: List<RowData>, layout: com.metraza.ui.theme.La
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val maxWidthPx = constraints.maxWidth.toFloat()
 
-        // Find font size that fits ALL rows
+        // Find font size that fits ALL rows using binary search
         val fontSize = remember(rows, maxWidthPx) {
-            var testSize = 16f
-            val minSize = 8f
+            var minSize = 8f
+            var maxSize = 16f
+            var optimalSize = minSize
 
-            while (testSize > minSize) {
+            while (maxSize - minSize > 0.5f) {
+                val midSize = (minSize + maxSize) / 2f
                 val allFit = rows.all { row ->
                     val fullText = buildRowText(row.label, row.variant)
                     val measuredWidth = textMeasurer.measure(
                         text = fullText,
-                        style = TextStyle(fontSize = testSize.sp)
+                        style = TextStyle(fontSize = midSize.sp)
                     ).size.width.toFloat()
                     measuredWidth <= maxWidthPx
                 }
-                if (allFit) break
-                testSize -= 0.5f
+                if (allFit) {
+                    optimalSize = midSize
+                    minSize = midSize
+                } else {
+                    maxSize = midSize
+                }
             }
-            testSize.sp
+            optimalSize.sp
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(layout.resultRowSpacing)) {
