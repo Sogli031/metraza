@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Tačni proračuni težine i dužine metalnih traka sa ispravnim gustinama materijala
-**Current focus:** Phase 4 - Performance Features
+**Current focus:** Phase 5 - Test Coverage
 
 ## Current Position
 
-Phase: 4 of 5 (Performance Features)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-09 — Plan 04-02 completed
+Phase: 5 of 5 (Test Coverage)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-09 — Plan 05-01 completed
 
-Progress: [██████░░░░] 60%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: ~2.8 minuta
-- Total execution time: 0.31 hours
+- Total plans completed: 7
+- Average duration: ~2.9 minuta
+- Total execution time: 0.36 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [██████░░░░] 60%
 | 02-critical-calculation-fixes | 1 | ~3 min | ~3 min |
 | 03-architecture-validation | 2 | ~6 min | ~3 min |
 | 04-performance-features | 2 | ~6 min | ~3 min |
+| 05-test-coverage | 1 | ~3 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (~2 min), 03-02 (~4 min), 04-01 (~3 min), 04-02 (~3 min)
+- Last 5 plans: 03-02 (~4 min), 04-01 (~3 min), 04-02 (~3 min), 05-01 (~3 min)
 - Trend: Consistent velocity
 
 *Updated after each plan completion*
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [Phase 04]: ASCII-safe karakteri u share tekstu - Kompatibilnost sa različitim messaging apps (O umesto Ø, * umesto •)
 - [Phase 04]: IZRAČUNAJ i RESET u istom redu, PODELI zasebno - Izbegava cramped layout na compact ekranima
 - [Phase 04]: Intent.createChooser za Share - Android best practice, prikazuje chooser dialog sa svim apps
+- [Phase 05-test-coverage]: JUnit 4 i Truth library za unit testing - Android standard, fluent assertions, brži JVM execution
+- [Phase 05-test-coverage]: Local unit tests (src/test/) umesto instrumented - business logic je pure functions, ne zahteva Android device
+- [Phase 05-test-coverage]: 84 unit testa pokrivaju Calculator, Validation, Models - edge cases, boundary values, manual calculation verification
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09T12:49:16Z
-Stopped at: Completed 04-02-PLAN.md (Reset i Share funkcionalnosti - formatResultsForShare, handleReset, handleShare)
+Last session: 2026-02-09T13:12:07Z
+Stopped at: Completed 05-01-PLAN.md (Test Infrastructure i Data Layer Unit Tests - JUnit 4, Truth, 84 unit tests)
 Resume file: None
