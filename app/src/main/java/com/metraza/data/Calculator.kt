@@ -151,3 +151,55 @@ fun doCalculate(input: InputState): List<CalculationResult> {
 
     return computeAllResults(weight, width, thick, rollCount, material, innerD)
 }
+
+fun formatResultsForShare(results: List<CalculationResult>, input: InputState): String {
+    val sb = StringBuilder()
+    sb.appendLine("=== METRAZA - REZULTATI ===")
+    sb.appendLine()
+
+    // Parametri
+    sb.appendLine("PARAMETRI:")
+    sb.appendLine("Materijal: ${input.selectedMaterial?.displayName ?: "N/A"}")
+    sb.appendLine("Ukupna težina: ${input.totalWeight} kg")
+    sb.appendLine("Debljina: ${input.thickness} mm")
+    sb.appendLine("Širina rezanja: ${input.cutWidth} mm")
+    sb.appendLine("Broj rezova: ${input.rolls}")
+    if (input.innerDiameter.trim().isNotBlank()) {
+        sb.appendLine("Unutrašnji prečnik: ${input.innerDiameter} mm")
+    }
+    sb.appendLine()
+
+    // Rezultati
+    sb.appendLine("REZULTATI:")
+    results.forEach { result ->
+        val rollWord = getRollWord(result.rolls)
+        sb.appendLine()
+        sb.appendLine("Za ${result.rolls} $rollWord:")
+
+        // Base variant
+        sb.append("  Tačna: ${formatNumber(result.base.lengthM)} m")
+        sb.append(" * ${formatNumber(result.base.weightKg)} kg")
+        if (result.base.outerDiameterMm != null) {
+            sb.append(" (O ${result.base.outerDiameterMm.roundToInt()} mm)")
+        }
+        sb.appendLine()
+
+        // +10% variant
+        sb.append("  +10%: ${formatNumber(result.plusVariant.lengthM)} m")
+        sb.append(" * ${formatNumber(result.plusVariant.weightKg)} kg")
+        if (result.plusVariant.outerDiameterMm != null) {
+            sb.append(" (O ${result.plusVariant.outerDiameterMm.roundToInt()} mm)")
+        }
+        sb.appendLine()
+
+        // -10% variant
+        sb.append("  -10%: ${formatNumber(result.minusVariant.lengthM)} m")
+        sb.append(" * ${formatNumber(result.minusVariant.weightKg)} kg")
+        if (result.minusVariant.outerDiameterMm != null) {
+            sb.append(" (O ${result.minusVariant.outerDiameterMm.roundToInt()} mm)")
+        }
+        sb.appendLine()
+    }
+
+    return sb.toString()
+}

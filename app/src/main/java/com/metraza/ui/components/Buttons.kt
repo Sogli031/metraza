@@ -51,17 +51,21 @@ fun PrimaryButton(
 fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     minHeight: Dp = 54.dp,
     contentPadding: PaddingValues = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.heightIn(min = minHeight),
         shape = MaterialTheme.shapes.large,
         colors = ButtonDefaults.buttonColors(
             containerColor = SurfaceLight,
-            contentColor = TextSecondary
+            contentColor = TextSecondary,
+            disabledContainerColor = SurfaceLight.copy(alpha = 0.4f),
+            disabledContentColor = TextSecondary.copy(alpha = 0.4f)
         ),
         contentPadding = contentPadding
     ) {

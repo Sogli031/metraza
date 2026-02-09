@@ -1,5 +1,7 @@
 package com.metraza.ui.screens
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -55,6 +57,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
@@ -76,6 +79,7 @@ import com.metraza.data.MessageType
 import com.metraza.data.InputState
 import com.metraza.data.FieldValidation
 import com.metraza.data.doCalculate
+import com.metraza.data.formatResultsForShare
 import com.metraza.data.validateTotalWeight
 import com.metraza.data.validateThickness
 import com.metraza.data.validateCutWidth
@@ -91,6 +95,7 @@ import com.metraza.ui.components.GlassCard
 import com.metraza.ui.components.LabeledTextField
 import com.metraza.ui.components.MaterialGridSelector
 import com.metraza.ui.components.PrimaryButton
+import com.metraza.ui.components.SecondaryButton
 import com.metraza.ui.theme.BackgroundGradientEnd
 import com.metraza.ui.theme.BackgroundGradientStart
 import com.metraza.ui.theme.ErrorColor
@@ -154,6 +159,7 @@ fun CalculatorScreen() {
     val diameterFocus = remember { FocusRequester() }
     var results by remember { mutableStateOf<List<CalculationResult>>(emptyList()) }
     val layout = layoutTokens()
+    val context = LocalContext.current
 
     // Scroll state i detekcija tastature
     val scrollState = rememberScrollState()
@@ -196,6 +202,50 @@ fun CalculatorScreen() {
                 "✗ ${ex.message}",
                 MessageType.ERROR
             )
+        }
+    }
+
+    val handleReset: () -> Unit = {
+        // Čisti input polja
+        selectedMaterialName = ""
+        totalWeight = ""
+        thickness = ""
+        cutWidth = ""
+        rolls = ""
+        innerDiameter = ""
+
+        // Čisti rezultate i poruke
+        results = emptyList()
+        messageState = MessageState("", MessageType.NONE)
+
+        // Reset validation error prikaza
+        showWeightError = false
+        showThicknessError = false
+        showWidthError = false
+        showRollsError = false
+        showDiameterError = false
+
+        // Ukloni fokus
+        focusManager.clearFocus()
+    }
+
+    val handleShare: () -> Unit = {
+        if (results.isNotEmpty()) {
+            val shareText = formatResultsForShare(results, inputState)
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, shareText)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, "Podeli rezultate")
+            try {
+                context.startActivity(shareIntent)
+            } catch (e: ActivityNotFoundException) {
+                messageState = MessageState(
+                    "Nema aplikacije za deljenje.",
+                    MessageType.ERROR
+                )
+            }
         }
     }
 
@@ -358,12 +408,34 @@ fun CalculatorScreen() {
                 }
             }
 
-            // Calculate Button
-            PrimaryButton(
-                text = "IZRAČUNAJ",
-                onClick = handleCalculate,
+            // Dugmad - IZRAČUNAJ i RESET
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = formValid,
+                horizontalArrangement = Arrangement.spacedBy(layout.buttonSpacing)
+            ) {
+                PrimaryButton(
+                    text = "IZRAČUNAJ",
+                    onClick = handleCalculate,
+                    modifier = Modifier.weight(1f),
+                    enabled = formValid,
+                    minHeight = layout.buttonMinHeight,
+                    contentPadding = layout.buttonContentPadding
+                )
+                SecondaryButton(
+                    text = "RESET",
+                    onClick = handleReset,
+                    modifier = Modifier.weight(1f),
+                    minHeight = layout.buttonMinHeight,
+                    contentPadding = layout.buttonContentPadding
+                )
+            }
+
+            // PODELI dugme - enabled samo kada ima rezultata
+            SecondaryButton(
+                text = "PODELI",
+                onClick = handleShare,
+                enabled = results.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth(),
                 minHeight = layout.buttonMinHeight,
                 contentPadding = layout.buttonContentPadding
             )
