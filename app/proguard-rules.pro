@@ -40,3 +40,13 @@
 -keep class java.lang.Math {
     public static double sqrt(double);
 }
+
+# =============================
+# InputState i FieldValidation - data klase za state management
+# Phase 3: Architecture & Validation
+# =============================
+-keep class com.metraza.data.InputState { *; }
+-keep class com.metraza.data.FieldValidation { *; }
+
+# Validation pure funkcije - pozivaju se iz Compose derivedStateOf
+-keep class com.metraza.data.ValidationKt { *; }
