@@ -1,5 +1,7 @@
 package com.metraza.data
 
+import java.util.Locale
+
 private const val MIN_INPUT = 0.001
 private const val MAX_INPUT = 100000.0
 private const val VARIANT_INCREASE = 10

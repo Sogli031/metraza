@@ -65,11 +65,19 @@ import com.metraza.data.CalculationResult
 import com.metraza.data.Material
 import com.metraza.data.MessageState
 import com.metraza.data.MessageType
-import com.metraza.data.computeAllResults
+import com.metraza.data.InputState
+import com.metraza.data.FieldValidation
+import com.metraza.data.doCalculate
+import com.metraza.data.validateTotalWeight
+import com.metraza.data.validateThickness
+import com.metraza.data.validateCutWidth
+import com.metraza.data.validateRolls
+import com.metraza.data.validateInnerDiameter
+import com.metraza.data.isFormValid
 import com.metraza.data.formatNumber
-import com.metraza.data.parseDouble
-import com.metraza.data.parseInt
 import com.metraza.data.getRollWord
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.focus.onFocusChanged
 import com.metraza.ui.components.AccentGlassCard
 import com.metraza.ui.components.GlassCard
 import com.metraza.ui.components.LabeledTextField
@@ -90,14 +98,44 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CalculatorScreen() {
+    // Input state - sva polja grupisana
+    var selectedMaterialName by rememberSaveable { mutableStateOf("") }
+    val selectedMaterial: Material? = selectedMaterialName.takeIf { it.isNotEmpty() }?.let { Material.fromDisplayName(it) }
+
     var totalWeight by rememberSaveable { mutableStateOf("") }
     var thickness by rememberSaveable { mutableStateOf("") }
     var cutWidth by rememberSaveable { mutableStateOf("") }
     var rolls by rememberSaveable { mutableStateOf("") }
     var innerDiameter by rememberSaveable { mutableStateOf("") }
-    var selectedMaterialName by rememberSaveable { mutableStateOf("") }
-    val selectedMaterial: Material? = selectedMaterialName.takeIf { it.isNotEmpty() }?.let { Material.fromDisplayName(it) }
+
+    // Derived InputState za doCalculate pure function
+    val inputState = InputState(
+        selectedMaterial = selectedMaterial,
+        totalWeight = totalWeight,
+        thickness = thickness,
+        cutWidth = cutWidth,
+        rolls = rolls,
+        innerDiameter = innerDiameter
+    )
+
     var messageState by remember { mutableStateOf(MessageState("", MessageType.NONE)) }
+
+    // Validation - error prikazuje se tek nakon što korisnik napusti polje
+    var showWeightError by remember { mutableStateOf(false) }
+    var showThicknessError by remember { mutableStateOf(false) }
+    var showWidthError by remember { mutableStateOf(false) }
+    var showRollsError by remember { mutableStateOf(false) }
+    var showDiameterError by remember { mutableStateOf(false) }
+
+    // Validation results (reaktivne - recompute kada se input promeni)
+    val weightValidation by remember { derivedStateOf { validateTotalWeight(totalWeight) } }
+    val thicknessValidation by remember { derivedStateOf { validateThickness(thickness) } }
+    val widthValidation by remember { derivedStateOf { validateCutWidth(cutWidth) } }
+    val rollsValidation by remember { derivedStateOf { validateRolls(rolls) } }
+    val diameterValidation by remember { derivedStateOf { validateInnerDiameter(innerDiameter) } }
+
+    // Form validity za button enable/disable (real-time, bez blur)
+    val formValid by remember { derivedStateOf { isFormValid(inputState) } }
 
     // Focus requesters za navigaciju između polja
     val focusManager = LocalFocusManager.current
@@ -116,22 +154,20 @@ fun CalculatorScreen() {
     var resultsPosition by remember { mutableIntStateOf(0) }
 
     // Funkcija za izračunavanje
-    val doCalculate: () -> Unit = {
+    val handleCalculate: () -> Unit = {
         focusManager.clearFocus()
         messageState = MessageState("", MessageType.NONE)
         results = emptyList()
-        try {
-            val material = selectedMaterial
-                ?: throw IllegalArgumentException("Molimo odaberite materijal iz liste.")
-            val weight = parseDouble(totalWeight, "Ukupna težina")
-            val thick = parseDouble(thickness, "Debljina")
-            val width = parseDouble(cutWidth, "Širina rezanja")
-            val rollCount = parseInt(rolls, "Broj rezova")
-            val innerD = if (innerDiameter.trim().isNotEmpty()) {
-                parseDouble(innerDiameter, "Unutrašnji prečnik")
-            } else null
 
-            val calcResults = computeAllResults(weight, width, thick, rollCount, material, innerD)
+        // Aktiviraj sve error prikaze
+        showWeightError = true
+        showThicknessError = true
+        showWidthError = true
+        showRollsError = true
+        showDiameterError = true
+
+        try {
+            val calcResults = doCalculate(inputState)
             if (calcResults.isNotEmpty()) {
                 results = calcResults
                 messageState = MessageState(
@@ -162,7 +198,7 @@ fun CalculatorScreen() {
     )
 
     // Kompaktan spacing kada je tastatura otvorena
-    val currentSpacing = if (isKeyboardVisible) 8.dp else layout.sectionSpacing
+    val currentSpacing = if (isKeyboardVisible) layout.keyboardSpacing else layout.sectionSpacing
 
     Box(
         modifier = Modifier
@@ -177,7 +213,7 @@ fun CalculatorScreen() {
                 .navigationBarsPadding()
                 .padding(
                     horizontal = layout.screenPaddingHorizontal,
-                    vertical = if (isKeyboardVisible) 8.dp else layout.screenPaddingVertical
+                    vertical = if (isKeyboardVisible) layout.keyboardScreenPaddingVertical else layout.screenPaddingVertical
                 ),
             verticalArrangement = Arrangement.spacedBy(currentSpacing)
         ) {
@@ -228,9 +264,9 @@ fun CalculatorScreen() {
                 Column(
                     modifier = Modifier.padding(
                         horizontal = layout.cardPaddingHorizontal,
-                        vertical = if (isKeyboardVisible) 12.dp else layout.cardPaddingVertical
+                        vertical = if (isKeyboardVisible) layout.keyboardCardPaddingVertical else layout.cardPaddingVertical
                     ),
-                    verticalArrangement = Arrangement.spacedBy(if (isKeyboardVisible) 10.dp else layout.sectionSpacing)
+                    verticalArrangement = Arrangement.spacedBy(if (isKeyboardVisible) layout.keyboardFieldSpacing else layout.sectionSpacing)
                 ) {
                     Text(
                         text = "PARAMETRI",
@@ -254,10 +290,12 @@ fun CalculatorScreen() {
                         value = totalWeight,
                         onValueChange = { totalWeight = it },
                         placeholder = "npr. 1000",
+                        validation = if (showWeightError) weightValidation else FieldValidation(true),
                         keyboardType = KeyboardType.Decimal,
                         focusRequester = weightFocus,
                         imeAction = ImeAction.Next,
-                        onImeAction = { thicknessFocus.requestFocus() }
+                        onImeAction = { thicknessFocus.requestFocus() },
+                        modifier = Modifier.onFocusChanged { if (!it.isFocused) showWeightError = true }
                     )
 
                     LabeledTextField(
@@ -265,10 +303,12 @@ fun CalculatorScreen() {
                         value = thickness,
                         onValueChange = { thickness = it },
                         placeholder = "npr. 0.5",
+                        validation = if (showThicknessError) thicknessValidation else FieldValidation(true),
                         keyboardType = KeyboardType.Decimal,
                         focusRequester = thicknessFocus,
                         imeAction = ImeAction.Next,
-                        onImeAction = { widthFocus.requestFocus() }
+                        onImeAction = { widthFocus.requestFocus() },
+                        modifier = Modifier.onFocusChanged { if (!it.isFocused) showThicknessError = true }
                     )
 
                     LabeledTextField(
@@ -276,10 +316,12 @@ fun CalculatorScreen() {
                         value = cutWidth,
                         onValueChange = { cutWidth = it },
                         placeholder = "npr. 100",
+                        validation = if (showWidthError) widthValidation else FieldValidation(true),
                         keyboardType = KeyboardType.Decimal,
                         focusRequester = widthFocus,
                         imeAction = ImeAction.Next,
-                        onImeAction = { rollsFocus.requestFocus() }
+                        onImeAction = { rollsFocus.requestFocus() },
+                        modifier = Modifier.onFocusChanged { if (!it.isFocused) showWidthError = true }
                     )
 
                     LabeledTextField(
@@ -287,10 +329,12 @@ fun CalculatorScreen() {
                         value = rolls,
                         onValueChange = { rolls = it },
                         placeholder = "npr. 5",
+                        validation = if (showRollsError) rollsValidation else FieldValidation(true),
                         keyboardType = KeyboardType.Number,
                         focusRequester = rollsFocus,
                         imeAction = ImeAction.Next,
-                        onImeAction = { diameterFocus.requestFocus() }
+                        onImeAction = { diameterFocus.requestFocus() },
+                        modifier = Modifier.onFocusChanged { if (!it.isFocused) showRollsError = true }
                     )
 
                     LabeledTextField(
@@ -298,10 +342,12 @@ fun CalculatorScreen() {
                         value = innerDiameter,
                         onValueChange = { innerDiameter = it },
                         placeholder = "npr. 150",
+                        validation = if (showDiameterError) diameterValidation else FieldValidation(true),
                         keyboardType = KeyboardType.Decimal,
                         focusRequester = diameterFocus,
                         imeAction = ImeAction.Done,
-                        onImeAction = { doCalculate() }
+                        onImeAction = { handleCalculate() },
+                        modifier = Modifier.onFocusChanged { if (!it.isFocused) showDiameterError = true }
                     )
                 }
             }
@@ -309,8 +355,9 @@ fun CalculatorScreen() {
             // Calculate Button
             PrimaryButton(
                 text = "IZRAČUNAJ",
-                onClick = doCalculate,
+                onClick = handleCalculate,
                 modifier = Modifier.fillMaxWidth(),
+                enabled = formValid,
                 minHeight = layout.buttonMinHeight,
                 contentPadding = layout.buttonContentPadding
             )
@@ -373,7 +420,7 @@ private fun ResultsSection(
             )
 
             results.forEachIndexed { index, result ->
-                ResultCard(result = result)
+                ResultCard(result = result, layout = layout)
                 if (index < results.lastIndex) {
                     Spacer(modifier = Modifier.height(4.dp))
                 }
@@ -383,7 +430,7 @@ private fun ResultsSection(
 }
 
 @Composable
-private fun ResultCard(result: CalculationResult) {
+private fun ResultCard(result: CalculationResult, layout: com.metraza.ui.theme.LayoutTokens) {
     val rollWord = getRollWord(result.rolls)
 
     // Build all row texts to find the longest one
@@ -395,14 +442,14 @@ private fun ResultCard(result: CalculationResult) {
 
     AccentGlassCard(
         bgColor = PrimaryDark.copy(alpha = 0.3f),
-        cornerRadius = 12.dp,
-        elevation = 4.dp
+        cornerRadius = layout.resultCardCornerRadius,
+        elevation = layout.resultCardElevation
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = layout.resultCardPaddingHorizontal, vertical = layout.resultCardPaddingVertical),
+            verticalArrangement = Arrangement.spacedBy(layout.resultRowSpacing)
         ) {
             Text(
                 text = "Za ${result.rolls} $rollWord:",
@@ -411,7 +458,7 @@ private fun ResultCard(result: CalculationResult) {
                 fontWeight = FontWeight.SemiBold
             )
 
-            ResultRowsGroup(rows = rows)
+            ResultRowsGroup(rows = rows, layout = layout)
         }
     }
 }
@@ -433,7 +480,7 @@ private fun buildRowText(label: String, variant: com.metraza.data.RollResult): S
 }
 
 @Composable
-private fun ResultRowsGroup(rows: List<RowData>) {
+private fun ResultRowsGroup(rows: List<RowData>, layout: com.metraza.ui.theme.LayoutTokens) {
     val textMeasurer = rememberTextMeasurer()
     val baseStyle = MaterialTheme.typography.bodyMedium
 
@@ -460,7 +507,7 @@ private fun ResultRowsGroup(rows: List<RowData>) {
             testSize.sp
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(layout.resultRowSpacing)) {
             rows.forEach { row ->
                 ResultRowContent(
                     label = row.label,
