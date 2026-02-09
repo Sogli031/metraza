@@ -135,3 +135,17 @@ fun calculateOuterDiameter(lengthM: Double, thicknessMm: Double, innerDiameterMm
         innerDiameterMm * innerDiameterMm + (4.0 / Math.PI) * area
     )
 }
+
+fun doCalculate(input: InputState): List<CalculationResult> {
+    val material = input.selectedMaterial
+        ?: throw IllegalArgumentException("Molimo odaberite materijal iz liste.")
+    val weight = parseDouble(input.totalWeight, "Ukupna težina")
+    val thick = parseDouble(input.thickness, "Debljina")
+    val width = parseDouble(input.cutWidth, "Širina rezanja")
+    val rollCount = parseInt(input.rolls, "Broj rezova")
+    val innerD = if (input.innerDiameter.trim().isNotEmpty()) {
+        parseDouble(input.innerDiameter, "Unutrašnji prečnik")
+    } else null
+
+    return computeAllResults(weight, width, thick, rollCount, material, innerD)
+}

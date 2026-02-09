@@ -41,3 +41,17 @@ data class MessageState(
     val text: String,
     val type: MessageType
 )
+
+data class InputState(
+    val selectedMaterial: Material? = null,
+    val totalWeight: String = "",
+    val thickness: String = "",
+    val cutWidth: String = "",
+    val rolls: String = "",
+    val innerDiameter: String = ""
+)
+
+data class FieldValidation(
+    val isValid: Boolean,
+    val errorMessage: String = ""
+)
