@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation & Security** - Dependency updates i ProGuard rules (2026-02-09)
 - [x] **Phase 2: Critical Calculation Fixes** - Ispravke gustina, preciznosti, Material enum (2026-02-09)
 - [x] **Phase 3: Architecture & Validation** - State refaktoring i input validacija (2026-02-09)
-- [ ] **Phase 4: Performance & Features** - Optimizacije i nove funkcije (Reset/Share)
+- [x] **Phase 4: Performance & Features** - Optimizacije i nove funkcije (Reset/Share) (2026-02-09)
 - [ ] **Phase 5: Test Coverage** - Kompletna test pokrivenost (unit + integration)
 
 ## Phase Details
@@ -79,8 +79,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Performance optimizacije: binary search font sizing, LazyColumn rezultati, @Immutable annotations, scroll timing fix
-- [ ] 04-02-PLAN.md -- Nove funkcije: Reset button, Share/Podeli rezultate via Intent
+- [x] 04-01-PLAN.md -- Performance optimizacije: binary search font sizing, LazyColumn rezultati, @Immutable annotations, scroll timing fix
+- [x] 04-02-PLAN.md -- Nove funkcije: Reset button, Share/Podeli rezultate via Intent
 
 ### Phase 5: Test Coverage
 **Goal**: Potpuna test pokrivenost Calculator logike i UI flow-a
@@ -107,5 +107,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation & Security | 1/1 | Complete | 2026-02-09 |
 | 2. Critical Calculation Fixes | 1/1 | Complete | 2026-02-09 |
 | 3. Architecture & Validation | 2/2 | Complete | 2026-02-09 |
-| 4. Performance & Features | 0/2 | Not started | - |
+| 4. Performance & Features | 2/2 | Complete | 2026-02-09 |
 | 5. Test Coverage | 0/1 | Not started | - |
