@@ -13,8 +13,8 @@ Refaktoring industrijskog kalkulatora za metalne trake - ispravljanje kritičnih
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Security** - Dependency updates i ProGuard rules (2026-02-09)
-- [ ] **Phase 2: Critical Calculation Fixes** - Ispravke gustina, preciznosti, Material enum
-- [ ] **Phase 3: Architecture & Validation** - State refaktoring i input validacija
+- [x] **Phase 2: Critical Calculation Fixes** - Ispravke gustina, preciznosti, Material enum (2026-02-09)
+- [x] **Phase 3: Architecture & Validation** - State refaktoring i input validacija (2026-02-09)
 - [ ] **Phase 4: Performance & Features** - Optimizacije i nove funkcije (Reset/Share)
 - [ ] **Phase 5: Test Coverage** - Kompletna test pokrivenost (unit + integration)
 
@@ -46,7 +46,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md -- Material enum sa ispravnim gustinama, Calculator konverzija na enum, UI ažuriranje, uklanjanje String-based koda
+- [x] 02-01-PLAN.md -- Material enum sa ispravnim gustinama, Calculator konverzija na enum, UI ažuriranje, uklanjanje String-based koda
 
 ### Phase 3: Architecture & Validation
 **Goal**: Čist state management i real-time input validacija
@@ -59,10 +59,11 @@ Plans:
   4. Invalidna polja pokazuju crveni border sa error message ispod
   5. Message state se pravilno clear-uje na novu kalkulaciju
   6. Nema magic numbers - sve layout vrednosti su centralizovane u AppConstants
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [x] 03-01-PLAN.md -- Data layer fondacija: InputState/FieldValidation modeli, Validation.kt pure functions, doCalculate pure function, LabeledTextField error support, PrimaryButton enabled support, layout tokens
+- [x] 03-02-PLAN.md -- CalculatorScreen refaktorisanje: InputState integracija, blur-based validacija, disabled button, magic number zamena, ProGuard rules
 
 ### Phase 4: Performance & Features
 **Goal**: Brza UI sa reset i share funkcijama za serijske proračune
@@ -103,7 +104,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Security | 1/1 | Complete | 2026-02-09 |
-| 2. Critical Calculation Fixes | 0/1 | Not started | - |
-| 3. Architecture & Validation | 0/1 | Not started | - |
+| 2. Critical Calculation Fixes | 1/1 | Complete | 2026-02-09 |
+| 3. Architecture & Validation | 2/2 | Complete | 2026-02-09 |
 | 4. Performance & Features | 0/1 | Not started | - |
 | 5. Test Coverage | 0/1 | Not started | - |
