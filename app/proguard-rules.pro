@@ -15,8 +15,19 @@
 -keep class com.metraza.data.MessageState { *; }
 -keep class com.metraza.data.MessageType { *; }
 
-# Sačuvati AppConstants (MATERIAL_DENSITIES mapa i LayoutTokens)
-# Density mapa se koristi runtime za lookup po string ključu.
+# Sačuvati Material enum i sve njene metode i polja
+# Material enum sadrži density property i companion object za fromDisplayName().
+# R8 može da ukloni values()/valueOf() metode ili obfuskuje enum polja.
+-keep enum com.metraza.data.Material {
+    public *;
+    <fields>;
+}
+-keepclassmembers enum com.metraza.data.Material {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Sačuvati AppConstants (LayoutTokens)
 -keep class com.metraza.ui.theme.AppConstantsKt {
     public *;
 }
