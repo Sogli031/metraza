@@ -14,13 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.metraza.data.FieldValidation
 import com.metraza.ui.theme.BorderColor
-import com.metraza.ui.theme.ErrorColor
 import com.metraza.ui.theme.Primary
 import com.metraza.ui.theme.SurfaceLight
 import com.metraza.ui.theme.TextPrimary
@@ -32,12 +31,14 @@ fun LabeledTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    validation: FieldValidation = FieldValidation(true),
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     focusRequester: FocusRequester? = null,
     imeAction: ImeAction = ImeAction.Next,
-    onImeAction: () -> Unit = {}
+    onImeAction: () -> Unit = {},
+    suffix: String? = null,
+    supportingText: String? = null,
+    testTag: String? = null
 ) {
     Column(
         modifier = modifier,
@@ -61,16 +62,27 @@ fun LabeledTextField(
                     overflow = TextOverflow.Ellipsis
                 )
             },
-            isError = !validation.isValid,
-            supportingText = if (!validation.isValid) {
+            suffix = suffix?.let {
                 {
                     Text(
-                        text = validation.errorMessage,
-                        color = ErrorColor,
-                        style = MaterialTheme.typography.bodySmall
+                        text = it,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TextSecondary,
+                        maxLines = 1
                     )
                 }
-            } else null,
+            },
+            supportingText = supportingText?.let {
+                {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
@@ -80,10 +92,11 @@ fun LabeledTextField(
                 onNext = { onImeAction() },
                 onDone = { onImeAction() }
             ),
-            colors = fieldColors(isError = !validation.isValid),
+            colors = fieldColors(),
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier
                 .fillMaxWidth()
+                .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
                 .then(
                     if (focusRequester != null) Modifier.focusRequester(focusRequester)
                     else Modifier
@@ -93,15 +106,14 @@ fun LabeledTextField(
 }
 
 @Composable
-fun fieldColors(isError: Boolean = false): TextFieldColors {
+fun fieldColors(): TextFieldColors {
     return OutlinedTextFieldDefaults.colors(
         focusedTextColor = TextPrimary,
         unfocusedTextColor = TextPrimary,
         focusedContainerColor = SurfaceLight,
         unfocusedContainerColor = SurfaceLight,
-        focusedBorderColor = if (isError) ErrorColor else Primary,
-        unfocusedBorderColor = if (isError) ErrorColor else BorderColor,
-        errorBorderColor = ErrorColor,
+        focusedBorderColor = Primary,
+        unfocusedBorderColor = BorderColor,
         cursorColor = Primary,
         focusedPlaceholderColor = TextSecondary,
         unfocusedPlaceholderColor = TextSecondary

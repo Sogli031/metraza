@@ -1,101 +1,70 @@
 package com.metraza.data
 
 import com.google.common.truth.Truth.assertThat
+import com.metraza.ui.theme.MATERIAL_DENSITIES
+import com.metraza.ui.theme.MATERIAL_DISPLAY_NAMES
 import org.junit.Test
 
 class ModelsTest {
 
-    // ========== Material.fromDisplayName testovi ==========
-
     @Test
-    fun fromDisplayName_validName_returnsMaterial() {
-        val result = Material.fromDisplayName("Cu")
-        assertThat(result).isEqualTo(Material.Cu)
+    fun materialDisplayNames_areStringValues() {
+        assertThat(MATERIAL_DISPLAY_NAMES).containsExactly(
+            "Cu",
+            "CuZn10",
+            "CuZn15",
+            "CuZn20",
+            "CuZn30",
+            "CuZn37"
+        ).inOrder()
     }
 
     @Test
-    fun fromDisplayName_allMaterials_found() {
-        Material.entries.forEach { material ->
-            val result = Material.fromDisplayName(material.name)
-            assertThat(result).isNotNull()
-            assertThat(result).isEqualTo(material)
-        }
+    fun materialDensities_includeDisplayNamesAndNumericAliases() {
+        assertThat(MATERIAL_DENSITIES).containsAtLeastEntriesIn(
+            mapOf(
+                "cu" to 8960,
+                "cuzn10" to 8800,
+                "10" to 8800,
+                "cuzn15" to 8630,
+                "15" to 8630,
+                "cuzn20" to 8530,
+                "20" to 8530,
+                "cuzn30" to 8403,
+                "30" to 8403,
+                "cuzn37" to 8285,
+                "37" to 8285
+            )
+        )
     }
 
     @Test
-    fun fromDisplayName_caseInsensitive_returnsMaterial() {
-        val cu = Material.fromDisplayName("cu")
-        assertThat(cu).isEqualTo(Material.Cu)
-
-        val cuzn10 = Material.fromDisplayName("CUZN10")
-        assertThat(cuzn10).isEqualTo(Material.CuZn10)
-    }
-
-    @Test
-    fun fromDisplayName_invalidName_returnsNull() {
-        val result = Material.fromDisplayName("InvalidMat")
-        assertThat(result).isNull()
-    }
-
-    // ========== Material density testovi (TEST-03 requirement) ==========
-
-    @Test
-    fun material_Cu_density_is8960() {
-        assertThat(Material.Cu.density).isEqualTo(8960)
-    }
-
-    @Test
-    fun material_CuZn10_density_is8800() {
-        assertThat(Material.CuZn10.density).isEqualTo(8800)
-    }
-
-    @Test
-    fun material_CuZn15_density_is8750() {
-        assertThat(Material.CuZn15.density).isEqualTo(8750)
-    }
-
-    @Test
-    fun material_CuZn20_density_is8670() {
-        assertThat(Material.CuZn20.density).isEqualTo(8670)
-    }
-
-    @Test
-    fun material_CuZn30_density_is8530() {
-        assertThat(Material.CuZn30.density).isEqualTo(8530)
-    }
-
-    @Test
-    fun material_CuZn37_density_is8285() {
-        assertThat(Material.CuZn37.density).isEqualTo(8285)
-    }
-
-    // ========== Material entries testovi ==========
-
-    @Test
-    fun material_hasSixEntries() {
-        assertThat(Material.entries.size).isEqualTo(6)
-    }
-
-    // ========== Material displayName testovi ==========
-
-    @Test
-    fun material_displayName_matchesEnumName() {
-        Material.entries.forEach { material ->
-            assertThat(material.displayName).isEqualTo(material.name)
-        }
-    }
-
-    // ========== Data class testovi ==========
-
-    @Test
-    fun rollResult_defaultOuterDiameter_isNull() {
+    fun rollResult_defaultOuterDiameterAndTapeRadius_areNull() {
         val result = RollResult(10.0, 5.0)
+
         assertThat(result.outerDiameterMm).isNull()
+        assertThat(result.tapeRadiusMm).isNull()
+    }
+
+    @Test
+    fun calculationResult_holdsBaseAndVariantRollResults() {
+        val result = CalculationResult(
+            rolls = 2,
+            base = RollResult(10.0, 5.0),
+            plusVariant = RollResult(11.0, 5.5),
+            minusVariant = RollResult(9.0, 4.5)
+        )
+
+        assertThat(result.rolls).isEqualTo(2)
+        assertThat(result.base.lengthM).isEqualTo(10.0)
+        assertThat(result.plusVariant.weightKg).isEqualTo(5.5)
+        assertThat(result.minusVariant.weightKg).isEqualTo(4.5)
     }
 
     @Test
     fun inputState_defaultValues_areEmpty() {
         val state = InputState()
+
         assertThat(state.selectedMaterial).isNull()
         assertThat(state.totalWeight).isEmpty()
         assertThat(state.thickness).isEmpty()
@@ -105,14 +74,31 @@ class ModelsTest {
     }
 
     @Test
-    fun fieldValidation_valid_hasNoErrorMessage() {
+    fun inputState_selectedMaterial_isNullableString() {
+        val state = InputState(selectedMaterial = "cu")
+
+        assertThat(state.selectedMaterial).isEqualTo("cu")
+    }
+
+    @Test
+    fun fieldValidation_validDefaultsToEmptyErrorMessage() {
         val validation = FieldValidation(true)
+
         assertThat(validation.errorMessage).isEmpty()
     }
 
     @Test
-    fun fieldValidation_invalid_hasErrorMessage() {
+    fun fieldValidation_invalidKeepsErrorMessage() {
         val validation = FieldValidation(false, "error")
+
         assertThat(validation.errorMessage).isEqualTo("error")
+    }
+
+    @Test
+    fun messageState_holdsTextAndType() {
+        val message = MessageState("Sačuvano", MessageType.SUCCESS)
+
+        assertThat(message.text).isEqualTo("Sačuvano")
+        assertThat(message.type).isEqualTo(MessageType.SUCCESS)
     }
 }

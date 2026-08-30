@@ -5,168 +5,67 @@ import org.junit.Test
 
 class ValidationTest {
 
-    // ========== validateTotalWeight testovi ==========
-
     @Test
-    fun validateTotalWeight_validInput_returnsValid() {
-        val result = validateTotalWeight("100")
-        assertThat(result.isValid).isTrue()
+    fun validateTotalWeight_acceptsValidCommaAndBoundaryValues() {
+        assertThat(validateTotalWeight("100").isValid).isTrue()
+        assertThat(validateTotalWeight("10,5").isValid).isTrue()
+        assertThat(validateTotalWeight("0.001").isValid).isTrue()
+        assertThat(validateTotalWeight("100000").isValid).isTrue()
     }
 
     @Test
-    fun validateTotalWeight_commaDecimal_returnsValid() {
-        val result = validateTotalWeight("10,5")
-        assertThat(result.isValid).isTrue()
+    fun validateTotalWeight_rejectsInvalidValues() {
+        assertThat(validateTotalWeight("").isValid).isFalse()
+        assertThat(validateTotalWeight("").errorMessage).contains("obavezno polje")
+        assertThat(validateTotalWeight("abc").errorMessage).contains("numerička vrednost")
+        assertThat(validateTotalWeight("0.0001").errorMessage).contains("između")
+        assertThat(validateTotalWeight("100001").errorMessage).contains("između")
     }
 
     @Test
-    fun validateTotalWeight_emptyString_returnsInvalid() {
-        val result = validateTotalWeight("")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("obavezno polje")
+    fun validateThickness_acceptsValidAndRejectsInvalidValues() {
+        assertThat(validateThickness("0.5").isValid).isTrue()
+        assertThat(validateThickness("").errorMessage).contains("obavezno")
+        assertThat(validateThickness("abc").errorMessage).contains("numerička vrednost")
+        assertThat(validateThickness("0.0001").errorMessage).contains("između")
     }
 
     @Test
-    fun validateTotalWeight_nonNumeric_returnsInvalid() {
-        val result = validateTotalWeight("abc")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("numerička vrednost")
+    fun validateCutWidth_acceptsValidAndRejectsInvalidValues() {
+        assertThat(validateCutWidth("100").isValid).isTrue()
+        assertThat(validateCutWidth("").errorMessage).contains("obavezno polje")
+        assertThat(validateCutWidth("abc").errorMessage).contains("numerička vrednost")
+        assertThat(validateCutWidth("100001").errorMessage).contains("između")
     }
 
     @Test
-    fun validateTotalWeight_belowMin_returnsInvalid() {
-        val result = validateTotalWeight("0.0001")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("između")
+    fun validateRolls_acceptsIntegersAndRejectsInvalidValues() {
+        assertThat(validateRolls("5").isValid).isTrue()
+        assertThat(validateRolls("").errorMessage).contains("obavezno polje")
+        assertThat(validateRolls("5.5").errorMessage).contains("ceo broj")
+        assertThat(validateRolls("0").errorMessage).contains("između 1")
     }
 
     @Test
-    fun validateTotalWeight_aboveMax_returnsInvalid() {
-        val result = validateTotalWeight("100001")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("između")
+    fun validateInnerDiameter_isOptionalButValidatesProvidedValue() {
+        assertThat(validateInnerDiameter("").isValid).isTrue()
+        assertThat(validateInnerDiameter("150").isValid).isTrue()
+        assertThat(validateInnerDiameter("abc").errorMessage).contains("numerička vrednost")
+        assertThat(validateInnerDiameter("0.0001").errorMessage).contains("između")
     }
 
     @Test
-    fun validateTotalWeight_boundaryMin_returnsValid() {
-        val result = validateTotalWeight("0.001")
-        assertThat(result.isValid).isTrue()
-    }
-
-    @Test
-    fun validateTotalWeight_boundaryMax_returnsValid() {
-        val result = validateTotalWeight("100000")
-        assertThat(result.isValid).isTrue()
-    }
-
-    // ========== validateThickness testovi ==========
-
-    @Test
-    fun validateThickness_validInput_returnsValid() {
-        val result = validateThickness("0.5")
-        assertThat(result.isValid).isTrue()
-    }
-
-    @Test
-    fun validateThickness_emptyString_returnsInvalid() {
-        val result = validateThickness("")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("obavezno")
-    }
-
-    @Test
-    fun validateThickness_nonNumeric_returnsInvalid() {
-        val result = validateThickness("abc")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("numerička vrednost")
-    }
-
-    // ========== validateCutWidth testovi ==========
-
-    @Test
-    fun validateCutWidth_validInput_returnsValid() {
-        val result = validateCutWidth("100")
-        assertThat(result.isValid).isTrue()
-    }
-
-    @Test
-    fun validateCutWidth_emptyString_returnsInvalid() {
-        val result = validateCutWidth("")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("obavezno polje")
-    }
-
-    @Test
-    fun validateCutWidth_nonNumeric_returnsInvalid() {
-        val result = validateCutWidth("abc")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("numerička vrednost")
-    }
-
-    // ========== validateRolls testovi ==========
-
-    @Test
-    fun validateRolls_validInteger_returnsValid() {
-        val result = validateRolls("5")
-        assertThat(result.isValid).isTrue()
-    }
-
-    @Test
-    fun validateRolls_emptyString_returnsInvalid() {
-        val result = validateRolls("")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("obavezno polje")
-    }
-
-    @Test
-    fun validateRolls_decimal_returnsInvalid() {
-        val result = validateRolls("5.5")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("ceo broj")
-    }
-
-    @Test
-    fun validateRolls_zero_returnsInvalid() {
-        val result = validateRolls("0")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("između 1")
-    }
-
-    // ========== validateInnerDiameter testovi ==========
-
-    @Test
-    fun validateInnerDiameter_emptyString_returnsValid() {
-        val result = validateInnerDiameter("")
-        assertThat(result.isValid).isTrue()
-    }
-
-    @Test
-    fun validateInnerDiameter_validInput_returnsValid() {
-        val result = validateInnerDiameter("150")
-        assertThat(result.isValid).isTrue()
-    }
-
-    @Test
-    fun validateInnerDiameter_nonNumeric_returnsInvalid() {
-        val result = validateInnerDiameter("abc")
-        assertThat(result.isValid).isFalse()
-        assertThat(result.errorMessage).contains("numerička vrednost")
-    }
-
-    // ========== isFormValid testovi ==========
-
-    @Test
-    fun isFormValid_allFieldsValid_returnsTrue() {
+    fun isFormValid_validInputWithStringMaterial_returnsTrue() {
         val input = InputState(
-            selectedMaterial = Material.Cu,
+            selectedMaterial = "Cu",
             totalWeight = "100",
             thickness = "0.5",
             cutWidth = "50",
             rolls = "5",
             innerDiameter = ""
         )
-        val result = isFormValid(input)
-        assertThat(result).isTrue()
+
+        assertThat(isFormValid(input)).isTrue()
     }
 
     @Test
@@ -179,35 +78,35 @@ class ValidationTest {
             rolls = "5",
             innerDiameter = ""
         )
-        val result = isFormValid(input)
-        assertThat(result).isFalse()
+
+        assertThat(isFormValid(input)).isFalse()
     }
 
     @Test
-    fun isFormValid_emptyWeight_returnsFalse() {
+    fun isFormValid_invalidRequiredField_returnsFalse() {
         val input = InputState(
-            selectedMaterial = Material.Cu,
+            selectedMaterial = "cu",
             totalWeight = "",
             thickness = "0.5",
             cutWidth = "50",
             rolls = "5",
             innerDiameter = ""
         )
-        val result = isFormValid(input)
-        assertThat(result).isFalse()
+
+        assertThat(isFormValid(input)).isFalse()
     }
 
     @Test
     fun isFormValid_emptyOptionalDiameter_returnsTrue() {
         val input = InputState(
-            selectedMaterial = Material.Cu,
+            selectedMaterial = "cu",
             totalWeight = "100",
             thickness = "0.5",
             cutWidth = "50",
             rolls = "5",
             innerDiameter = ""
         )
-        val result = isFormValid(input)
-        assertThat(result).isTrue()
+
+        assertThat(isFormValid(input)).isTrue()
     }
 }

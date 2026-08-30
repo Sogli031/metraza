@@ -1,7 +1,15 @@
 package com.metraza.ui
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.metraza.ui.screens.CalculatorScreen
 import com.metraza.ui.theme.MetrazaTheme
 import org.junit.Rule
@@ -19,160 +27,125 @@ class CalculatorScreenTest {
         }
     }
 
-    // ========== Initial State Tests ==========
-
     @Test
-    fun initialState_calculateButtonIsDisabled() {
+    fun initialState_coreCalculatorContentIsDisplayed() {
         launchScreen()
-        composeTestRule.onNodeWithText("IZRAČUNAJ").assertIsNotEnabled()
+
+        composeTestRule.onNodeWithText("Metraža").assertExists()
+        composeTestRule.onNodeWithText("Kalkulator dužine i težine trake").assertExists()
+        composeTestRule.onNodeWithText("PARAMETRI").assertExists()
+        composeTestRule.onNodeWithText("IZRAČUNAJ").assertExists()
     }
 
     @Test
-    fun initialState_resetButtonExists() {
+    fun initialState_materialChipsAndInputsAreDisplayed() {
         launchScreen()
-        composeTestRule.onNodeWithText("RESET").assertExists()
+
+        listOf("Cu", "CuZn10", "CuZn15", "CuZn20", "CuZn30", "CuZn37").forEach {
+            composeTestRule.onNodeWithText(it).assertExists()
+        }
+
+        listOf("npr. 1000", "npr. 0.5", "npr. 100", "npr. 5", "npr. 150").forEach {
+            composeTestRule.onNodeWithText(it).assertExists()
+        }
     }
 
     @Test
-    fun initialState_podeliButtonIsDisabled() {
-        launchScreen()
-        composeTestRule.onNodeWithText("PODELI").assertIsNotEnabled()
-    }
-
-    @Test
-    fun initialState_materialChipsDisplayed() {
-        launchScreen()
-        composeTestRule.onNodeWithText("Cu").assertExists()
-        composeTestRule.onNodeWithText("CuZn10").assertExists()
-        composeTestRule.onNodeWithText("CuZn15").assertExists()
-        composeTestRule.onNodeWithText("CuZn20").assertExists()
-        composeTestRule.onNodeWithText("CuZn30").assertExists()
-        composeTestRule.onNodeWithText("CuZn37").assertExists()
-    }
-
-    @Test
-    fun initialState_allInputFieldsDisplayed() {
-        launchScreen()
-        // Proveravamo postojanje placeholder tekstova kao proxy za text polja
-        composeTestRule.onNodeWithText("npr. 1000").assertExists()  // Ukupna težina
-        composeTestRule.onNodeWithText("npr. 0.5").assertExists()   // Debljina
-        composeTestRule.onNodeWithText("npr. 100").assertExists()   // Širina rezanja
-        composeTestRule.onNodeWithText("npr. 5").assertExists()     // Broj rezova
-        composeTestRule.onNodeWithText("npr. 150").assertExists()   // Unutrašnji prečnik
-    }
-
-    // ========== Calculation Flow Tests ==========
-
-    @Test
-    fun fullCalculationFlow_validInputs_showsResults() {
+    fun calculationFlow_validInputs_showsCurrentResults() {
         launchScreen()
 
-        // Klik na Cu chip
         composeTestRule.onNodeWithText("Cu").performClick()
+        composeTestRule.onNodeWithTag("total-weight-input").performTextInput("100")
+        composeTestRule.onNodeWithTag("thickness-input").performTextInput("0.5")
+        composeTestRule.onNodeWithTag("cut-width-input").performTextInput("50")
+        composeTestRule.onNodeWithTag("rolls-input").performTextInput("3")
 
-        // Unos podataka preko placeholder tekstova
-        composeTestRule.onNodeWithText("npr. 1000").performTextInput("100")
-        composeTestRule.onNodeWithText("npr. 0.5").performTextInput("0.5")
-        composeTestRule.onNodeWithText("npr. 100").performTextInput("50")
-        composeTestRule.onNodeWithText("npr. 5").performTextInput("3")
-
-        // Klik na IZRAČUNAJ dugme
         composeTestRule.onNodeWithText("IZRAČUNAJ").performClick()
-
-        // Čekamo da se rezultati prikažu
         composeTestRule.waitForIdle()
 
-        // Proveravamo da postoji rezultat za 3 reza (osnovni rezultat)
-        composeTestRule.onNodeWithText("Za 3 reza:", substring = true).assertExists()
-
-        // Proveravamo varijante (+10% i -10%)
-        composeTestRule.onNodeWithText("Za 2 reza:", substring = true).assertExists()
-        composeTestRule.onNodeWithText("Za 1 rez:", substring = true).assertExists()
-
-        // PODELI dugme treba da bude omogućeno nakon što ima rezultata
-        composeTestRule.onNodeWithText("PODELI").assertIsEnabled()
+        composeTestRule.onNodeWithText("REZULTATI").assertExists()
+        composeTestRule.onNodeWithText("Za 3 reza", substring = true).assertExists()
+        composeTestRule.onAllNodesWithText("+10%").assertCountEquals(3)
+        composeTestRule.onAllNodesWithText("-10%").assertCountEquals(3)
     }
 
-    // ========== Reset Tests ==========
-
     @Test
-    fun resetButton_afterFillingInputs_clearsFields() {
+    fun calculationFlow_missingMaterial_showsValidationMessage() {
         launchScreen()
 
-        // Klik na Cu chip
-        composeTestRule.onNodeWithText("Cu").performClick()
-
-        // Unos jedne vrednosti
-        composeTestRule.onNodeWithText("npr. 1000").performTextInput("100")
-
-        // Klik na RESET
-        composeTestRule.onNodeWithText("RESET").performClick()
-
-        // Provera da je IZRAČUNAJ disabled (forma je prazna)
-        composeTestRule.onNodeWithText("IZRAČUNAJ").assertIsNotEnabled()
-    }
-
-    // ========== Validation Error Tests ==========
-
-    @Test
-    fun invalidInput_showsErrorAfterBlur() {
-        launchScreen()
-
-        // Fokusiramo weight polje (klik)
-        composeTestRule.onNodeWithText("npr. 1000").performClick()
-
-        // Odmah prelazimo na thickness polje (blur weight bez unosa)
-        composeTestRule.onNodeWithText("npr. 0.5").performClick()
-
-        // Sačekamo da se validacija pokrene
+        composeTestRule.onNodeWithText("IZRAČUNAJ").performClick()
         composeTestRule.waitForIdle()
 
-        // Error poruka bi trebalo da se pojavi za prazno required polje
-        // Note: Ovo zahteva da CalculatorScreen prikazuje error messages
-        // Ako ne postoji vizuelna error poruka odmah, test može da prođe i bez ovog koraka
+        composeTestRule.onNodeWithText("odaberite materijal", substring = true, ignoreCase = true).assertExists()
     }
 
     @Test
-    fun invalidInput_buttonStaysDisabled() {
+    fun theme_headerAndSectionHierarchyRemainVisibleAfterThemePolish() {
         launchScreen()
 
-        // Klik na Cu chip (samo materijal)
-        composeTestRule.onNodeWithText("Cu").performClick()
-
-        // Bez unosa ostalih polja, IZRAČUNAJ treba da ostane disabled
-        composeTestRule.onNodeWithText("IZRAČUNAJ").assertIsNotEnabled()
+        composeTestRule.onNodeWithText("Metraža").assertExists()
+        composeTestRule.onNodeWithText("PARAMETRI").assertExists()
+        composeTestRule.onNodeWithText("Materijal").assertExists()
     }
 
-    // ========== Material Selection Tests ==========
-
     @Test
-    fun materialSelection_clickingChip_selectsMaterial() {
+    fun inputFields_showMeasurementUnits() {
         launchScreen()
 
-        // Klik na CuZn30
+        composeTestRule.onNodeWithText("kg").assertExists()
+        composeTestRule.onAllNodesWithText("mm").assertCountEquals(3)
+        composeTestRule.onNodeWithText("rez.").assertExists()
+    }
+
+    @Test
+    fun materialSelection_exposesSelectedState() {
+        launchScreen()
+
         composeTestRule.onNodeWithText("CuZn30").performClick()
+        composeTestRule.waitForIdle()
 
-        // Material chip je selekcija - verifikujemo da postoji
-        composeTestRule.onNodeWithText("CuZn30").assertExists()
-
-        // IZRAČUNAJ još uvek disabled jer ostala polja nisu popunjena
-        composeTestRule.onNodeWithText("IZRAČUNAJ").assertIsNotEnabled()
+        composeTestRule.onNodeWithText("CuZn30").assertIsSelected()
+        composeTestRule.onNodeWithText("Cu").assertIsNotSelected()
     }
 
     @Test
-    fun materialSelection_differentMaterials_canSwitch() {
+    fun primaryAction_andCompactHeaderRemainAvailable() {
         launchScreen()
 
-        // Klik na prvi materijal
+        composeTestRule.onNodeWithText("Metraža").assertExists()
+        composeTestRule.onNodeWithText("IZRAČUNAJ").assertExists()
+    }
+
+    @Test
+    fun calculationFlow_withInnerDiameter_showsMetricResultHeadersAndSuccessIcon() {
+        launchScreen()
+
         composeTestRule.onNodeWithText("Cu").performClick()
+        composeTestRule.onNodeWithTag("total-weight-input").performTextInput("100")
+        composeTestRule.onNodeWithTag("thickness-input").performTextInput("0.5")
+        composeTestRule.onNodeWithTag("cut-width-input").performTextInput("50")
+        composeTestRule.onNodeWithTag("rolls-input").performTextInput("3")
+        composeTestRule.onNodeWithTag("inner-diameter-input").performTextInput("150")
+
+        composeTestRule.onNodeWithText("IZRAČUNAJ").performClick()
         composeTestRule.waitForIdle()
 
-        // Klik na drugi materijal
-        composeTestRule.onNodeWithText("CuZn37").performClick()
+        composeTestRule.onNodeWithContentDescription("Uspešan proračun").assertExists()
+        composeTestRule.onAllNodesWithText("METARA", substring = true).assertCountEquals(3)
+        composeTestRule.onAllNodesWithText("TEŽINA", substring = true).assertCountEquals(3)
+        composeTestRule.onAllNodesWithText("PREČNIK").assertCountEquals(3)
+        composeTestRule.onAllNodesWithText("Ø", substring = true).assertCountEquals(9)
+        composeTestRule.onAllNodesWithText("/R", substring = true).assertCountEquals(9)
+        composeTestRule.onAllNodesWithText("polupr.", substring = true, ignoreCase = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun calculationFlow_missingMaterial_showsErrorIcon() {
+        launchScreen()
+
+        composeTestRule.onNodeWithText("IZRAČUNAJ").performClick()
         composeTestRule.waitForIdle()
 
-        // Oba materijala postoje (chip se ne sakriva)
-        composeTestRule.onNodeWithText("Cu").assertExists()
-        composeTestRule.onNodeWithText("CuZn37").assertExists()
+        composeTestRule.onNodeWithContentDescription("Greška u proračunu").assertExists()
     }
 }
