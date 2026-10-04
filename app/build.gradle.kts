@@ -4,6 +4,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Zajednički potpis: Desktop\programi\keystore
+rootProject.file("../keystore/signing.gradle").takeIf { it.exists() }?.let { apply(from = it) }
+
 android {
     namespace = "com.metraza"
     compileSdk = 35
